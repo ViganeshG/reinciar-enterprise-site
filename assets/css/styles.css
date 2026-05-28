@@ -737,37 +737,24 @@
         }
         .service-card {
             position: relative;
-            padding: 36px 32px;
             border-right: 1px solid var(--line-100);
             border-bottom: 1px solid var(--line-100);
             background: var(--white);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            min-height: 320px;
-            transition: background 0.3s var(--ease-out);
+            transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
             cursor: pointer;
+            perspective: 1400px;
+            min-height: 360px;
         }
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--navy-900);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s var(--ease-out);
-        }
-        .service-card:hover {
+        .service-card:not(.flipped):hover {
             background: var(--surface-50);
             box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
-        .service-card:hover::before { transform: scaleX(1); }
-        .service-card:hover .service-arrow { opacity: 1; transform: translate(0,0); }
-        /* 7 cards in 4-col grid — lone card in last row spans 1, centred */
-        .services-grid .service-card:last-child:nth-child(4n+3) { grid-column: span 1; }
+        .service-card:not(.flipped):hover .service-arrow { opacity: 1; transform: translate(0,0); }
+        .service-card:not(.flipped):hover .service-icon {
+            background: var(--navy-900);
+            color: var(--white);
+        }
 
         .service-num {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -784,10 +771,6 @@
             color: var(--navy-900);
             margin-top: 8px;
             transition: background 0.3s, color 0.3s;
-        }
-        .service-card:hover .service-icon {
-            background: var(--navy-900);
-            color: var(--white);
         }
         .service-icon svg { width: 22px; height: 22px; }
         .service-card h3 {
@@ -812,6 +795,198 @@
             transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
         }
         .service-arrow svg { width: 18px; height: 18px; }
+
+        /* ============================================================
+           CARD FLIP SYSTEM (service-card + tool-card)
+           ============================================================ */
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            min-height: inherit;
+            transform-style: preserve-3d;
+            transition: transform 0.68s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .service-card.flipped .flip-inner,
+        .tool-card.flipped .flip-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-front,
+        .flip-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .flip-front {
+            padding: 36px 32px;
+            gap: 16px;
+            position: relative;
+        }
+        .flip-front::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--navy-900), var(--blue-purple));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s var(--ease-out);
+        }
+        .service-card:hover .flip-front::before,
+        .service-card.flipped .flip-front::before { transform: scaleX(1); }
+
+        .flip-back {
+            transform: rotateY(180deg);
+            background: var(--navy-900);
+            border-radius: 0;
+            padding: 28px 28px 24px;
+            overflow: hidden;
+            gap: 0;
+        }
+        .flip-back::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-purple), var(--lavender));
+        }
+
+        /* Flip-back interior elements */
+        .fb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .fb-num {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--lavender);
+            text-transform: uppercase;
+        }
+        .fb-close {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            width: 26px; height: 26px;
+            display: grid; place-items: center;
+            cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        .fb-close:hover { background: rgba(255,255,255,0.18); color: var(--white); }
+        .fb-close svg { width: 12px; height: 12px; }
+        .fb-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .fb-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            flex: 1;
+            margin-bottom: 16px;
+        }
+        .fb-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: rgba(255,255,255,0.80);
+        }
+        .fb-list li::before {
+            content: '';
+            display: inline-block;
+            width: 4px; height: 4px;
+            background: var(--lavender);
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .fb-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--lavender-soft);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s, gap 0.2s;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.10);
+            margin-top: auto;
+            letter-spacing: 0.02em;
+        }
+        .fb-cta:hover { color: var(--white); gap: 9px; }
+        .fb-cta svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+        /* Flip hint — visible on card hover */
+        .flip-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--ink-300);
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--line-100);
+            letter-spacing: 0.04em;
+            opacity: 0;
+            transition: opacity 0.25s, color 0.25s;
+            user-select: none;
+        }
+        .service-card:hover .flip-hint { opacity: 1; color: var(--blue-purple); }
+        .tool-card:hover .flip-hint { opacity: 1; color: var(--tool-color, var(--blue-purple)); }
+        .flip-hint svg { width: 11px; height: 11px; }
+
+        /* Tool-card flip tweaks */
+        .tool-card {
+            position: relative;
+            border: 1px solid var(--line-100);
+            border-radius: var(--radius-lg);
+            background: var(--white);
+            overflow: hidden;
+            cursor: pointer;
+            perspective: 1400px;
+            min-height: 340px;
+            transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+        }
+        .tool-card:not(.flipped):hover {
+            border-color: var(--line-200);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+        .tool-card .flip-front {
+            padding: 28px 24px 24px;
+            gap: 10px;
+        }
+        .tool-card .flip-front::before {
+            height: 3px;
+            background: var(--tool-color, var(--navy-900));
+        }
+        .tool-card:hover .flip-front::before,
+        .tool-card.flipped .flip-front::before { transform: scaleX(1); }
+        .tool-card .flip-back {
+            background: rgba(18, 24, 80, 0.97);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        .tool-card .flip-back::before {
+            background: var(--tool-color, var(--blue-purple));
+        }
+        .tool-card .fb-num { color: var(--tool-color, var(--lavender)); }
 
         /* ============================================================
            ABOUT
@@ -1135,35 +1310,6 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
-        .tool-card {
-            background: var(--white);
-            border: 1px solid var(--line-100);
-            border-radius: var(--radius-lg);
-            padding: 28px 24px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            cursor: default;
-            transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
-        }
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--tool-color, var(--navy-900));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.35s var(--ease-out);
-        }
-        .tool-card:hover {
-            border-color: var(--line-200);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-3px);
-        }
-        .tool-card:hover::before { transform: scaleX(1); }
         .tool-cat-badge {
             display: inline-flex;
             align-items: center;
@@ -1183,7 +1329,7 @@
             transition: background 0.3s, color 0.3s;
             margin-bottom: 4px;
         }
-        .tool-card:hover .tool-icon-wrap {
+        .tool-card:not(.flipped):hover .tool-icon-wrap {
             background: var(--tool-color, var(--navy-900));
             color: var(--white);
         }
@@ -1209,13 +1355,13 @@
 
         /* Phase colour tokens */
         :root {
-            --phase-1: #4F6BED;
-            --phase-2: #0D9488;
-            --phase-3: #7C5CFC;
-            --phase-4: #D97706;
-            --phase-5: #E85D75;
-            --phase-6: #16A34A;
-            --phase-7: #5B6BAF;
+            --phase-1: #4F6BED;   /* Royal Blue   h≈225 */
+            --phase-2: #0D9488;   /* Teal         h≈175 */
+            --phase-3: #7C5CFC;   /* Violet       h≈256 */
+            --phase-4: #D97706;   /* Amber        h≈38  */
+            --phase-5: #E85D75;   /* Rose         h≈350 */
+            --phase-6: #16A34A;   /* Forest Green h≈142 */
+            --phase-7: #0891B2;   /* Cerulean     h≈197 — distinct from indigo-blue of phase 1 */
         }
 
         .methodology {

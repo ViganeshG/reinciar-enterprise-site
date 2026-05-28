@@ -99,4 +99,13 @@
         const top = el.getBoundingClientRect().top + window.pageYOffset - getScrollOffset();
         window.scrollTo(0, Math.max(0, top));
     });
+
+    // Card flip — service cards and tool cards
+    document.querySelectorAll('.service-card, .tool-card').forEach(function (card) {
+        card.addEventListener('click', function (e) {
+            // CTA links and [data-no-flip] anchors handle their own action — don't flip
+            if (e.target.closest('[data-no-flip]')) return;
+            card.classList.toggle('flipped');
+        });
+    });
 })();
